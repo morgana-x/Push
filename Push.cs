@@ -92,7 +92,7 @@ namespace Push
                 {
                     if (Physics.Linecast(Victim.Position, newPos, x))
                     {
-                        Exiled.API.Features.Log.Info("Woopsies wall in the way " + x.ToString());
+                      //  Exiled.API.Features.Log.Info("Woopsies wall in the way " + x.ToString());
                         yield break;
                     }
                 }
