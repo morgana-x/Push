@@ -85,6 +85,9 @@ namespace Push
         {
             Vector3 pushed = Instigator.CameraTransform.forward * Plugin.Instance.Config.PushForce;
             Vector3 endPos = Victim.Position + new Vector3(pushed.x, 0, pushed.z);
+            int layerAsLayerMask = 0;
+            for (int x = 1; x < 8; x++)
+                layerAsLayerMask |= (1 << x);
             for (int i = 1; i < Plugin.Instance.Config.Iterations; i++)
             {
 
@@ -93,13 +96,8 @@ namespace Push
 
                 Vector3 newPos = Vector3.MoveTowards(Victim.Position, endPos, movementAmount);
 
-                for (int x = 1; x < 15; x++) // I don't know why this works :)
-                {
-                    if (Physics.Linecast(Victim.Position, newPos, x))
-                    {
-                        yield break;
-                    }
-                }
+                if (Physics.Linecast(Victim.Position, newPos, layerAsLayerMask))
+                    yield break;
 
                 Victim.Position = newPos;
 
