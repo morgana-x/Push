@@ -35,7 +35,7 @@ namespace Push
             {
                 if (DateTime.Now < value)
                 {
-                    response = "Cooldown Active";
+                    response = "Cooldown active";
                     return false;
                 }
             }
@@ -48,6 +48,8 @@ namespace Push
                 response = "No one to push.";
                 return false;
             }
+
+
             var Victim = Exiled.API.Features.Player.Get(hit.collider);
             if (Victim == null)
             {
@@ -59,6 +61,7 @@ namespace Push
                 response = "Can't push self";
                 return false;
             }
+
             if (!Cooldowns.TryGetValue(Instigator, out _))
             {
                 Cooldowns.Add(Instigator, DateTime.Now.AddSeconds(Plugin.Instance.Config.PushCooldown));
@@ -67,32 +70,33 @@ namespace Push
             {
                 Cooldowns[Instigator] = DateTime.Now.AddSeconds(Plugin.Instance.Config.PushCooldown);
             }
+
             Timing.RunCoroutine(PushPlayer(Instigator, Victim));
+
+
             Victim.ShowHint(Plugin.Instance.Config.PushHintVictim.Replace("{player}", Instigator.DisplayNickname));
             Instigator.ShowHint(Plugin.Instance.Config.PushHintInstigator.Replace("{player}", Victim.DisplayNickname));
+
+
             response = "true";
             return true;
         }
         private IEnumerator<float> PushPlayer(Exiled.API.Features.Player Instigator, Exiled.API.Features.Player Victim)
         {
             Vector3 pushed = Instigator.CameraTransform.forward * Plugin.Instance.Config.PushForce;
-
+            Vector3 endPos = Victim.Position + new Vector3(pushed.x, 0, pushed.z);
             for (int i = 1; i < Plugin.Instance.Config.Iterations; i++)
             {
 
                 float movementAmount = Plugin.Instance.Config.PushForce / Plugin.Instance.Config.Iterations;
 
 
-                Vector3 newPos = Vector3.MoveTowards(Victim.Position, Victim.Position + new Vector3(pushed.x, 0, pushed.z), movementAmount);
-
-                var ray = new Ray(Victim.Position, Instigator.CameraTransform.forward);
-
+                Vector3 newPos = Vector3.MoveTowards(Victim.Position, endPos, movementAmount);
 
                 for (int x = 1; x < 15; x++) // I don't know why this works :)
                 {
                     if (Physics.Linecast(Victim.Position, newPos, x))
                     {
-                      //  Exiled.API.Features.Log.Info("Woopsies wall in the way " + x.ToString());
                         yield break;
                     }
                 }
